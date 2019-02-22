@@ -36,8 +36,10 @@ export default {
 <style scoped>
 .slide {
   position: relative;
-  height: 400px;
+  height: 28vw;
   overflow: hidden;
+  border-bottom: solid 5px #333;
+  margin-bottom: 15px;
 }
 .slide li {
   position: absolute;
