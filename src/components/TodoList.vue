@@ -7,62 +7,70 @@
     <p v-if="todoList.length == 0">目前沒有任何待辦事項</p>
     <transition-group name="list-complete" tag="ul">
       <li v-for="(item,index) in todoList" :key="index" class="list-complete-item">
-        <span v-if="item.status == 0">
-          <span @click="completeTodoList(index,item)" class="checkbox"></span> {{item.text}}
-        </span>
-        <span v-if="item.status == 1" class="complete">
-          <span class="checkbox checked"></span>{{item.text}}
-        </span>
-        <span v-if="item.status == 2">
-          <span class="checkbox disabled"></span><input type="text" v-model="item.text"/>
-        </span>
-        <button v-if="item.status == 0" @click="editTodoList(index)">修改</button>
-        <button v-if="item.status == 0" @click="removeTodoList(index)">刪除</button>
-        <button v-if="item.status == 2" @click="saveTodoList(index)" class="green">儲存</button>
+        <TodoItem :index="index" :item="item" @complete="completeTodoList"/>
+        <button v-if="item.status == 'todo'" @click="editTodoList(index)">修改</button>
+        <button v-if="item.status == 'todo'" @click="removeTodoList(index)">刪除</button>
+        <button v-if="item.status == 'edit'" @click="saveTodoList(index)" class="green">儲存</button>
       </li>
     </transition-group>
   </div>
 </template>
 
 <script>
+import TodoItem from "../components/TodoItem.vue";
 export default {
-  name: 'TodoList',
-  data: function () {
-    return {
-      todoList: [] // 0:未完成 , 1:已完成 , 2:新增/修改
-    }
+  name: "TodoList",
+  components: {
+    TodoItem
   },
-  methods:{
-    addTodoList(){
-      this.todoList.unshift({
-        status: 2,
-        text: '請輸入代辦事項'
-      })  
+  data: function() {
+    return {
+      todoList: [],
+      editing: false
+    };
+  },
+  methods: {
+    addTodoList() {
+      if (this.editing) {
+        alert("edit");
+      } else {
+        this.todoList.unshift({
+          status: "edit",
+          text: "請輸入代辦事項"
+        });
+        this.editing = true;
+      }
     },
-    editTodoList(n){
-      this.todoList[n].status= 2;
+    editTodoList(n) {
+      if (this.editing) {
+        alert("edit");
+      } else {
+        this.todoList[n].status = "edit";
+        this.editing = true;
+      }
     },
-    removeTodoList(n){
-      this.todoList.splice(n,1);
-    },
-    saveTodoList(n){
-      this.todoList[n].status= 0;
-    },
-    completeTodoList(n,item){
-      let completeItem = item;
-      completeItem.status = 1
-      this.todoList.splice(n,1);
+    completeTodoList(n) {
+      let completeItem = this.todoList[n];
+      completeItem.status = "complete";
+      this.todoList.splice(n, 1);
       this.todoList.push(completeItem);
     },
-    delCompleteTodoList(){
-      for(var i = this.todoList.length -1; i >= 0 ; i--){
-        if(this.todoList[i].status == 1){
-            this.todoList.splice(i, 1);
+    removeTodoList(n) {
+      this.todoList.splice(n, 1);
+    },
+    saveTodoList(n) {
+      this.todoList[n].status = "todo";
+      this.editing = false;
+    },
+    delCompleteTodoList() {
+      for (var i = this.todoList.length - 1; i >= 0; i--) {
+        if (this.todoList[i].status == "complete") {
+          this.todoList.splice(i, 1);
         }
       }
     }
   }
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -76,43 +84,13 @@ export default {
   border-bottom: dashed 1px #ccc;
   width: 95%;
 }
-.todoList .complete {
-  color: #999
-}
-
-.checkbox {
-  border: solid 1px #16716c;
-  background-color: #e8f3f2;
-  position: relative;
-  display: inline-block;
-  width: 15px;
-  height: 15px;
-  border-radius: 3px;
-  margin: 5px;
-  vertical-align: middle;
-}
-.checkbox.disabled,.checkbox.checked {
-  border: solid 1px #ccc;
-  background-color: #eeeeee;
-}
-.checkbox.checked:before {
-  content: '✔';
-  position: absolute;
-  top: -.3em;
-  left: .1em;
-  color: #ccc
-}
-.slide img {
-  width: 100%;
-}
-
 .list-complete-item {
-  transition: all .5s;
+  transition: all 0.5s;
   display: inline-block;
   margin-right: 10px;
 }
 .list-complete-enter, .list-complete-leave-to
-/* .list-complete-leave-active for below version 2.1.8 */ {
+  /* .list-complete-leave-active for below version 2.1.8 */ {
   opacity: 0;
   transform: translateX(30px);
 }
